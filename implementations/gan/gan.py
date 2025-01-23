@@ -3,6 +3,8 @@ import os
 import numpy as np
 import math
 
+import torch.utils
+import torch.utils.data
 import torchvision.transforms as transforms
 from torchvision.utils import save_image
 
@@ -40,9 +42,9 @@ class Generator(nn.Module):
         super(Generator, self).__init__()
 
         def block(in_feat, out_feat, normalize=True):
-            layers = [nn.Linear(in_feat, out_feat)]
+            layers = nn.ModuleList([nn.Linear(in_feat, out_feat)])
             if normalize:
-                layers.append(nn.BatchNorm1d(out_feat, 0.8))
+                layers.append(nn.BatchNorm1d(out_feat, eps=0.8))
             layers.append(nn.LeakyReLU(0.2, inplace=True))
             return layers
 
@@ -112,7 +114,7 @@ dataloader = torch.utils.data.DataLoader(
 optimizer_G = torch.optim.Adam(generator.parameters(), lr=opt.lr, betas=(opt.b1, opt.b2))
 optimizer_D = torch.optim.Adam(discriminator.parameters(), lr=opt.lr, betas=(opt.b1, opt.b2))
 
-Tensor = torch.cuda.FloatTensor if cuda else torch.FloatTensor
+Tensor = torch.FloatTensor if cuda else torch.FloatTensor  
 
 # ----------
 #  Training
